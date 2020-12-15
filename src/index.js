@@ -12,6 +12,28 @@ app.use(bodyParser.urlencoded({ extended: false }))
 
 app.use(bodyParser.json())
 // your code goes here
+let numOfApiCalls=0;
+let initialMax=null;
+app.get('/api/posts',(req,res)=>{
+    if(numOfApiCalls>=5){
+        res.status(429).send({message:"Exceed Number of API Calls"})
+        return;
+    }
+    const parsedMax=Number(res.query.max|| 10)
+    const max=parsedMax>20?10:parsedMax
+    const topMax=posts.filter((value,idx)=>idx<max)
+    res.send(topMax)
+    if(initialMax===null){
+        initialMax=max
+        numOfApiCalls++
+        setTimeout(()=>{
+            initialMax=null
+            numOfApiCalls=0
+        },30*1000)
+    }else{
+        numOfApiCalls++
+    }
+})
 
 
 app.listen(port, () => console.log(`App listening on port ${port}!`))
