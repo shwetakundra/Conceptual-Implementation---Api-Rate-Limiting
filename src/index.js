@@ -1,6 +1,7 @@
 const express = require('express')
 const app = express()
 const bodyParser = require("body-parser");
+const posts=require('./initialData');
 const port = 3000
 app.use(express.urlencoded());
 
@@ -19,9 +20,13 @@ app.get('/api/posts',(req,res)=>{
         res.status(429).send({message:"Exceed Number of API Calls"})
         return;
     }
-    const parsedMax=Number(res.query.max|| 10)
+    const parsedMax=Number(req.query.max|| 10)
     const max=parsedMax>20?10:parsedMax
-    const topMax=posts.filter((value,idx)=>idx<max)
+    let finalMax=max;
+    if(initialMax!=null){
+        finalMax=Math.min(finalMax,initialMax);
+    }
+    const topMax=posts.filter((value,idx)=>idx<finalMax)
     res.send(topMax)
     if(initialMax===null){
         initialMax=max
